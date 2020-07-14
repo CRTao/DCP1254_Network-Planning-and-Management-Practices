@@ -1,0 +1,12 @@
+.tooltipster-shadow {
+	border-radius: 5px;
+	background: #fff;
+	box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+	color: #666;
+}
+.tooltipster-shadow .tooltipster-content {
+	font-family: 'ciscosansextralight', sans-serif;
+	font-size: 13px;
+	line-height: 16px;
+	padding: 8px 10px;
+}

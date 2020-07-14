@@ -1,0 +1,29 @@
+/***********************
+
+Custom Social sharing. Appears on content detail (docs, blog, threads) and place content browser pages:
+
+soy/place/content.soy
+template/docs/document.ftl
+template/blogs/view-blog-post.ftl
+template/forums-include/forum-macros.ftl
+
+***********************/
+
+function socialSharing(){
+	url      		= window.location.href;
+	title		 		= $j('title').text();
+	titleEncode = encodeURIComponent(title);
+
+	fb = "http://www.facebook.com/share.php?u=" + url;
+	tw = "https://twitter.com/intent/tweet?text=" + titleEncode + "&url=" + url;
+	ln = "http://www.linkedin.com/shareArticle?mini=true&url=" + url;
+	gp = "https://plus.google.com/share?url=" + url;
+
+	fbLink = '<a target="_blank" href="' + fb + '"><span class="cln-icon fb"></span></a>';
+	twLink = '<a target="_blank" href="' + tw + '"><span class="cln-icon tw"></span></a>';
+	lnLink = '<a target="_blank" href="' + ln + '"><span class="cln-icon ln"></span></a>';
+	gpLink = '<a target="_blank" href="' + gp + '"><span class="cln-icon gplus"></span></a>';
+
+	$j(".custom-sharing").append(fbLink + twLink + lnLink + gpLink);
+
+}

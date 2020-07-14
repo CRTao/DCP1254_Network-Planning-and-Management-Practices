@@ -1,0 +1,22 @@
+
+category_value=_satellite.getVar("breadcrumbupdated");
+
+
+adobe.target.getOffer({  
+  "mbox": "target-global-mbox",  
+"params":{ "second": "true", "category_value": category_value},	
+  "success": function(offers) {          
+        adobe.target.applyOffer( { 
+                "mbox": "target-global-mbox",
+                "offer": offers 
+        } );
+  },  
+  "error": function(status, error) {          
+      if (console && console.log) {
+        console.log(status);
+        console.log(error);
+      }
+  },
+ "timeout": 5000
+});
+

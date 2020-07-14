@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'ciscosansextralight';
+    src: url('ciscosansextralight-webfont.eot');
+    src: url('ciscosansextralight-webfont.eot?#iefix') format('embedded-opentype'),
+         url('ciscosansextralight-webfont.woff2') format('woff2'),
+         url('ciscosansextralight-webfont.woff') format('woff'),
+         url('ciscosansextralight-webfont.ttf') format('truetype'),
+         url('ciscosansextralight-webfont.svg#ciscosansextralight') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}

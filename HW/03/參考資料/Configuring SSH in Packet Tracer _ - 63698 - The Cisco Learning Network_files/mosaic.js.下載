@@ -1,0 +1,79 @@
+/*!* Mosaic - Hover Animation JS v1.0 */
+$j(document).ready(function () {
+
+    var b = $j(".widget-3columnimage a");
+    for (var a = 0; a < b.length; a++) {
+        b[a] = new MosaicTileNarrow(b[a])
+    }
+
+    /* Back to Top Functionality */
+    $j(window).scroll(function (e) {
+        if ($j(window).scrollTop() > 20) {
+            if ($j('#back-to-top').hasClass('visible'))
+                return false;
+            $j('#back-to-top').addClass('visible');
+        } else {
+            $j('#back-to-top').removeClass('visible');
+        }
+
+    });
+    console.log("hello");
+    $j('#back-to-top').on('click', function (e) {
+        $j('html,body').animate({
+            scrollTop: 0
+        }, 500);
+    });
+});
+
+/** Lightbox Close Functionality **/
+var marketoSubscribeLightbox = function () {
+    var close = '<div class="close-button">' +
+        '<a class="close">x</a>' +
+        '</div>';
+    var popup = $j('<iframe>').attr('src', 'themes/cln/widgets/marketo-subscribe.html').attr('width', '600px').attr('height', '600px');
+    var j = popup.before($j(close));
+    var c = $j('<div class="popup"></div>');
+    $j('.j-body-welcome.j-body-home').append(c);
+    $j('.j-body-welcome.j-body-home').find('.popup').append(j);
+
+    $j('.j-body-welcome.j-body-home').find('.popup').lightbox_me({
+        width: '600',
+        height: '600',
+        closeSelector: '.close',
+        closeClick: true,
+        destroyOnClose: true
+    });
+}
+
+function MosaicTileNarrow(a) {
+    var b = this;
+    this.parent = $j(a);
+    this.config = {
+        tileAnchor: "a",
+        mosaicContentWrapper: ".widget-3columnimage-column",
+        mosaicGradient: ".widget-3columnimage-column:after",
+        mosaicTitle: "h5",
+        mosaicDesc: "h3"
+    };
+    this.tileMouseEnter = function () {
+        b.parent.find(b.config.mosaicTitle).css("top", 0);
+        b.parent.find(b.config.mosaicDesc).css({
+            left: "0",
+            opacity: "1"
+        })
+    };
+    this.tileMouseLeave = function () {
+        var e = b.parent.find(b.config.mosaicDesc).outerHeight() + parseInt(b.parent.find(b.config.mosaicTitle).css("marginBottom"), 10);
+        b.parent.find(b.config.mosaicTitle).css("top", e);
+        b.parent.find(b.config.mosaicDesc).css({
+            left: "-100%",
+            opacity: "0"
+        })
+    };
+    this.init = function () {
+        b.tileMouseLeave();
+        b.parent.off("mouseenter").on("mouseenter", b.tileMouseEnter);
+        b.parent.off("mouseleave").on("mouseleave", b.tileMouseLeave);
+    };
+    b.init()
+};

@@ -1,0 +1,66 @@
+/*
+-	jQuery conTabs v1.0
+-	Simple Content Tabs jQuery plugin
+-
+-	by Kentaro Fischer
+-	Email: kentaro.fischer@solutionset.com
+-	
+-	License: Public Domain
+-	http://creativecommons.org/licenses/by/3.0/
+-
+*/
+
+(function($){ 
+     $.fn.extend({  
+         conTabs: function() {
+         	return this.each(function(){
+
+				var thisTabList = $(this);
+				var thisTabs = $(thisTabList).children('li');
+				var thisContent = $(thisTabList).nextUntil(':not(div.conTabsContent)');
+
+				$(thisContent).not('div.active').hide();
+
+				$(thisTabs).each(function(){
+
+					var thisTab = $(this);
+					var thisIndex = $(thisTab).index();
+					if (thisIndex == 0) { 
+						$(thisTab).addClass('active');
+						$(thisContent).eq(thisIndex).addClass('active');
+
+						$(thisContent).eq(thisIndex).show();
+					}
+
+
+					$(this).click(function(){
+
+						/* ie7/ie8 workaround part 1/2 */
+						if ($.browser.msie && $.browser.version < 9) { 
+							var activeSpan = $(thisTabs).filter('.active').children('span');
+	                    	var activePadding = $(activeSpan).css('padding-top');
+						}
+
+						$(thisTabs).removeClass('active');
+						$(thisContent).removeClass('active');
+
+						$(thisTab).addClass('active');
+						$(thisContent).eq(thisIndex).addClass('active');
+
+						/* ie7/ie8 workaround 2/2 */
+	                    if ($.browser.msie && $.browser.version < 9) { 
+	                    	$(activeSpan).css('padding-top', (parseInt(activePadding) + 1) + 'px');
+	                    	$(activeSpan).css('padding-top', activePadding);
+	                    }
+
+						$(thisContent).not('div.active').hide();
+						$(thisContent).eq(thisIndex).show();
+					});
+
+				});
+
+
+         	});
+        } 
+    }); 
+})(jQuery);

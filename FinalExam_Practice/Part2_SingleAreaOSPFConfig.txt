@@ -1,0 +1,39 @@
+//-------------------------------------
+//    Part 2 OSPF Single Area Config
+//-------------------------------------
+
+// R1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+router ospf 10
+network 192.168.1.0 0.0.0.3 area 0
+network 172.16.2.0 0.0.0.255 area 0
+router-id 1.1.1.1
+auto-cost reference-bandwidth 1000 (1000M)
+default-information originate
+
+interface gig0/0
+ip ospf priority 10
+
+// R2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+router ospf 10
+network 172.16.2.0 0.0.0.255 area 0
+network 172.16.1.0 0.0.0.127 area 0
+router-id 2.2.2.2
+auto-cost reference-bandwidth 1000 (1000M)
+passive-interface gig0/1           (Not transmit message)
+
+interface gig0/0
+ip ospf priority 5
+
+interface gig0/1
+ip ospf priority 10
+
+// R3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+router ospf 10
+network 172.16.2.0 0.0.0.255 area 0
+network 172.16.1.0 0.0.0.127 area 0
+router-id 3.3.3.3
+auto-cost reference-bandwidth 1000
+passive-interface gig0/1

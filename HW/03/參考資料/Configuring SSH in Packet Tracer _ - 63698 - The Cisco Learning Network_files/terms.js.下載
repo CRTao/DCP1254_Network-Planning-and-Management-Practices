@@ -1,0 +1,26 @@
+$j(document).ready(function () {
+
+	var termsFormSubmitted = false;
+
+	$j('.jive-body-formpage-terms').find('form').first().find('input[type=submit]').first().after('<span id="cisco-form-spinner" class="cisco-form-spinner" style="display:none"><img src="/themes/cln/images/spinner-sm.gif" width="16" height="16"></span>');
+
+	$j('.jive-body-formpage-terms').find('form').first().find('input[type=submit]').first().click(function(e){
+		if (termsFormSubmitted === true) {
+			e.preventDefault();
+			console.debug('prevented double click');
+			return false;
+		}
+		console.debug('first click, submitting');
+		termsFormSubmitted = true;
+
+		$j(this).attr("disabled", true);
+		$j('#cisco-form-spinner').show();
+		
+		var the_form = $j(this).closest('form');
+		setTimeout(function() {
+			the_form.submit();
+		}, 200);
+		return true;
+
+	});
+});

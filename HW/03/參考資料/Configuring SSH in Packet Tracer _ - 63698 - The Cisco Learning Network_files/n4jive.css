@@ -1,0 +1,139 @@
+#jive-nitro-admin-modal {
+    height: 800px;
+    width: 90%;
+}
+#jive-nitro-admin-modal iframe {
+    height: 725px;
+    max-height: 725px;
+    width: 100%;
+}
+
+.j-nitro-activity .j-nitro-activity-type {
+    margin-right: 5px;
+}
+
+.j-nitro-activity .j-nitro-activity-icon {
+    height: 16px;
+    top: 2px;
+    margin-right: 5px;
+}
+
+.j-nitro-activity .j-nitro-activity-name {
+	font-weight: bold;
+}
+
+#reputation-spacer {
+    display: inline-block;
+}
+
+#reputation-menu-link {
+    display: inline-block;
+    min-width: 75px;
+}
+
+#reputation-menu-link .reputation-points-loading {
+    font-weight: normal;
+}
+
+#reputation-menu-link .reputation-points-ready {
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#navReputationCenter .reputation-points-ready {
+    font-weight: bold;
+}
+
+.j-people-thumb footer img {
+    max-height: 16px;
+    max-width: 30px;
+    margin-right: 4px;
+}
+
+.nitro-annual-points {
+    font-size: 75%;
+    font-style: italic;
+}
+
+.nitro-history-complete {
+    margin-top: 15px;
+}
+
+#g-challenge-mini-modal .g-challenge-wrapper {
+    height: 60px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+#g-challenge-mini-modal .j-empty {
+    margin-top: 90px;
+}
+
+#g-challenge-mini-modal .g-challenge-image {
+    height: 50px;
+    width: 50px;
+    padding-right: 10px;
+}
+
+#g-challenge-mini-modal .g-challenge-description {
+    position: absolute;
+    top: 15%;
+}
+
+#g-challenge-mini-modal .g-recently-completed {
+    font-weight: bold;
+    border-bottom: 1px;
+}
+
+#j-js-nitro-history a.nitro-challenge-link img,
+#j-js-cisco-certifications a.certification-link img {
+    height: 46px;
+    width: 46px;
+}
+
+/*
+* Cisco CLN customized style
+*/
+.j-gamification-status-level {
+    margin-top: -4px;
+    max-width: 46px;
+    max-height: 23px;
+}
+
+.j-gamification-status-level.cisco-acclaim-badge-avatar {
+    max-height: 46px;
+}
+
+.j-gamification-status-level img {
+    margin-bottom: -10px;
+    max-width: 23px;
+    max-height: 23px;
+}
+/*
+* end Cisco CLN customized style
+*/
+
+.jive-comment .j-gamification-status-level {
+    position: absolute;
+    left: -50px;
+    top: 30px;
+    padding: 0;
+    margin: 0;
+    max-width: 30px;
+    max-height: 30px;
+}
+
+.nitro4x_heading.shrunk {
+    font-size: 12px;
+}
+
+.nitro4x_reputation .nitro4x_heading a.j-single-line {
+    height: 44px;
+    padding: 0;
+    line-height: 44px;
+}
+
+.nitro4x_reputation .j-place-header {
+    display:block;
+    overflow:hidden;
+}

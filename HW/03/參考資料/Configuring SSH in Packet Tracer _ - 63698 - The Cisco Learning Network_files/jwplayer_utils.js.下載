@@ -1,0 +1,351 @@
+;(function ($, window) {
+
+var intervals = {};
+var removeListener = function(selector) {
+
+	if (intervals[selector]) {
+		
+		window.clearInterval(intervals[selector]);
+		intervals[selector] = null;
+	}
+};
+var found = 'waitUntilExists.found';
+
+/**
+ * @function
+ * @property {object} jQuery plugin which runs handler function once specified
+ *           element is inserted into the DOM
+ * @param {function|string} handler 
+ *            A function to execute at the time when the element is inserted or 
+ *            string "remove" to remove the listener from the given selector
+ * @param {bool} shouldRunHandlerOnce 
+ *            Optional: if true, handler is unbound after its first invocation
+ * @example jQuery(selector).waitUntilExists(function);
+ */
+ 
+$.fn.waitUntilExists = function(handler, shouldRunHandlerOnce, isChild) {
+
+	var selector = this.selector;
+	var $this = $(selector);
+	var $elements = $this.not(function() { return $(this).data(found); });
+	
+	if (handler === 'remove') {
+		
+		// Hijack and remove interval immediately if the code requests
+		removeListener(selector);
+	}
+	else {
+
+		// Run the handler on all found elements and mark as found
+		$elements.each(handler).data(found, true);
+		
+		if (shouldRunHandlerOnce && $this.length) {
+			
+			// Element was found, implying the handler already ran for all 
+			// matched elements
+			removeListener(selector);
+		}
+		else if (!isChild) {
+			
+			// If this is a recurring search or if the target has not yet been 
+			// found, create an interval to continue searching for the target
+			intervals[selector] = window.setInterval(function () {
+				
+				$this.waitUntilExists(handler, shouldRunHandlerOnce, true);
+			}, 500);
+		}
+	}
+	
+	return $this;
+};
+ 
+}(jQuery, window));
+
+var showPlayrateMenu = function(macroInstanceId) {
+	var playbackMenuElementId = 'playback-rate-menu-'+macroInstanceId;
+	var dockButtonSelector = '.jw-dock-button[button="playrate_'+macroInstanceId+'"]';
+	$j('#'+playbackMenuElementId).show();
+	$j('#'+playbackMenuElementId).position({
+		my: 'right top', 
+		at: 'right bottom+2', 
+		of: dockButtonSelector,
+		collision: 'none'
+	});
+}
+
+var hidePlayrateMenu = function(macroInstanceId) {
+	var playbackMenuElementId = 'playback-rate-menu-'+macroInstanceId;
+	$j('#'+playbackMenuElementId).hide();
+}
+
+var addPlayrateButton =	function(macroInstanceId){
+	var playerElementId = 'vplayer_'+macroInstanceId;
+	var playbackMenuElementId = 'playback-rate-menu-'+macroInstanceId;
+    if (jwplayer(playerElementId).getRenderingMode() == "flash") {
+    	return;
+    }
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/android/i.test(userAgent)) {
+        return;
+    }
+    var tag = document.querySelector('#'+ playerElementId +' video');
+    tag.defaultPlaybackRate = 1.0;
+    tag.playbackRate = 1.0;
+    var handlePlaybackRateClick = function(speed) {
+        if(speed === '.5x') {
+            changeSpeedTo(.5);
+        } else if(speed === 'Normal') {
+            changeSpeedTo(1);
+        } else if(speed === '1.25x') {
+        	changeSpeedTo(1.25);
+        } else if(speed === '1.5x') {
+            changeSpeedTo(1.5);
+        } else if(speed === '2x') {
+            changeSpeedTo(2);
+        } else {
+            console.warn(speed + ' is not a valid playback speed.');
+        }
+        if($j('#'+playbackMenuElementId).is(':visible')) {
+        	$j('#'+playbackMenuElementId).hide();	
+        }
+    }
+    var changeSpeedTo = function(rate) {
+        jwplayer(playerElementId).seek(jwplayer(playerElementId).getPosition());
+        tag.playbackRate = rate;
+        tag.defaultPlaybackRate = rate;
+    }
+
+    jwplayer(playerElementId).addButton("/themes/cln/images/playback_rate_gear_icon.png", null, function(e){ 
+		if($j('#'+playbackMenuElementId).is(':visible')){
+			hidePlayrateMenu(macroInstanceId);
+		} else {
+			showPlayrateMenu(macroInstanceId);
+		}
+	},"playrate_"+macroInstanceId);
+    
+    $j('.jw-dock-button[button="playrate_'+macroInstanceId+'"]').waitUntilExists(function() {
+    	$j('.jw-dock-button[button="playrate_'+macroInstanceId+'"]').append(getMenuUlElement(playbackMenuElementId));
+    	$j('.jw-dock-button[button="playrate_'+macroInstanceId+'"]').hover(function() {
+    		showPlayrateMenu(macroInstanceId);    	
+    	}, function() {
+    		hidePlayrateMenu(macroInstanceId);
+    	});
+    	
+    	$j('#'+playbackMenuElementId).waitUntilExists(function() {
+    		$j('#'+playbackMenuElementId).menu({'select': function(event, ui) {
+    			handlePlaybackRateClick(ui.item.text());
+    		}
+    		});
+    		if($j('#'+playbackMenuElementId).is(':visible')) {
+    			$j('#'+playbackMenuElementId).hide();
+    		}
+    		
+    	    $j(document).on('touchstart', '#' + playbackMenuElementId + ' .ui-menu-item a', function(event){
+    	        event.stopPropagation();
+    	        event.preventDefault();
+    	        if(event.handled !== true) {
+
+    	        	var target = $j(event.target);
+    	        	var speed = target.text();
+    	        	handlePlaybackRateClick(speed);
+
+    	            event.handled = true;
+    	        } else {
+    	            return false;
+    	        }
+    	    });
+    	});
+
+    });
+};
+
+var getMenuUlElement = function(playbackMenuElementId) {
+	var $menuUlWrapper = $j(document.createElement('ul'));
+	$menuUlWrapper.attr('id', playbackMenuElementId);
+	$menuUlWrapper.attr('class', 'playback-rate-menu');
+	$menuUlWrapper.attr('aria-label', 'Playback:');
+
+	var $menuli1 = $j(document.createElement('li'));
+	var $menulia1 = $j(document.createElement('a'));
+	$menulia1.text('.5x');
+	$menuli1.append($menulia1);
+	$menuUlWrapper.append($menuli1);
+	
+	var $menuli2 = $j(document.createElement('li'));
+	var $menulia2 = $j(document.createElement('a'));
+	$menulia2.text('Normal');
+	$menuli2.append($menulia2);
+	$menuUlWrapper.append($menuli2);
+
+	var $menuli3 = $j(document.createElement('li'));
+	var $menulia3 = $j(document.createElement('a'));
+	$menulia3.text('1.25x');
+	$menuli3.append($menulia3);
+	$menuUlWrapper.append($menuli3);
+	
+	var $menuli4 = $j(document.createElement('li'));
+	var $menulia4 = $j(document.createElement('a'));
+	$menulia4.text('1.5x');
+	$menuli4.append($menulia4);
+	$menuUlWrapper.append($menuli4);
+	
+	var $menuli5 = $j(document.createElement('li'));
+	var $menulia5 = $j(document.createElement('a'));
+	$menulia5.text('2x');
+	$menuli5.append($menulia5);
+	$menuUlWrapper.append($menuli5);
+	
+	return $menuUlWrapper;
+};
+
+var setupPlayer = function(playerElementId, macroInstanceId, config) {
+	//if mobile use hls url as is
+	//if not mobile and hls url, change to hd
+	var isDesktop = true;
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+		isDesktop = false;
+	}
+	
+	if(isDesktop && /hls/i.test(config.playlist[0].type)) {
+		var currentFile = config.playlist[0].file;
+		config.playlist[0].file = currentFile.replace(/vid-mobi/i, 'vid-hd').replace(/mb\,l\,m\,h/, 'hd,l,m,h').replace(/vidmobi\,low\,med\,high/i, 'vidhd,low,med,high');
+	}
+
+	var playerInstance = jwplayer(playerElementId);
+	playerInstance.setup(config);
+	
+	playerInstance.on('ready', function () {
+		addPlayrateButton(macroInstanceId);
+
+		$j('div#' + playerElementId).click(function () {
+			if (config && config.playlist && config.playlist[0] && config.playlist[0].title)
+				prepareVideoTagsJW(config.playlist[0].title);
+		});
+	});
+
+	$j('div#' + playerElementId).click(function () {
+		if (config && config.playlist && config.playlist[0] && config.playlist[0].title)
+			prepareVideoTagsJW(config.playlist[0].title);
+	});
+
+	return playerInstance;
+};
+
+function prepareVideoTagsJW(videoName) {
+	prepareVideoTags('JW Player', videoName)
+}
+
+function prepareVideoTagsQLM(videoName) {
+	prepareVideoTags('HTML5', videoName);
+}
+
+function prepareVideoTags(playerName, videoName) {
+	console.log('Setting analytics playerName=[' + playerName + ']  videoName=[' + videoName + ']');
+	if (typeof window.digitalData === 'undefined') {
+		window.digitalData = {};
+	}
+	if (typeof window.digitalData.page === 'undefined') {
+		window.digitalData.page = {};
+	}
+	if (typeof window.digitalData.page.videoInfo === 'undefined') {
+		window.digitalData.page.videoInfo = {};
+	}
+	window.digitalData.page.videoInfo.playerName = playerName;
+	window.digitalData.page.videoInfo.videoName = videoName;
+}
+
+var addLightboxClickHandler = function(macroInstanceId, title, width, height, isInteractiveTranscript, projectId, fileId, transcriptAlignment, config) {
+	var transcriptWidth = 520;
+	var loadInteractiveTranscript = (isInteractiveTranscript === 'true');
+	$j('#' + macroInstanceId).click(function(e){
+		prepareVideoTagsJW(title);
+		var videoElementId = 'vplayer_'+macroInstanceId;
+		var wrapperElementId = "jw_wrapper_"+macroInstanceId;
+		var playbackMenuElementId = 'playback-rate-menu-'+macroInstanceId;
+		var transcriptElementId = 'transcript_'+macroInstanceId;
+		
+		var $wrapper = $j(document.createElement('div'));
+//    	<div class="p3sdk-container p3sdk-debug" player_id="jw-player-7" player_type="jw7">
+		var wrapperClasses = 'jive-modal-ciscovideomacro not-practice-quiz cln-lightboxmacro';
+		if(loadInteractiveTranscript) {
+			wrapperClasses += ' p3sdk-container p3sdk-debug';
+			$wrapper.attr('player_id', videoElementId);
+			$wrapper.attr('player_type', "jw7");
+			if(transcriptAlignment == 'side') {
+				var wrapperWidth = transcriptWidth + parseInt(width);
+				$wrapper.attr('style', 'width: ' + wrapperWidth + 'px' );
+			}
+		}
+		$wrapper.attr('class', wrapperClasses);
+		$wrapper.attr('id', wrapperElementId);
+		
+
+		var $title = $j(document.createElement('h2'));
+		$title.text(title);
+		$title.attr('class', 'ciscovideomaro-lb-title');
+		$wrapper.append($title);
+
+		var $closeButton = $j(document.createElement('a'));
+		$closeButton.attr('class','j-icon-close jive-close');
+		$wrapper.append($closeButton);
+		
+		var $theVideoWrapper = $j(document.createElement('div'));
+		$theVideoWrapper.attr('style', 'width: '+width+'px;');
+		$theVideoWrapper.attr('id', videoElementId);
+		$theVideoWrapper.attr('class', 'not-practice-quiz cln-lightboxmacro ' + transcriptAlignment);
+		$theVideoWrapper.html('video goes here');
+		$wrapper.append($theVideoWrapper);
+
+		if(loadInteractiveTranscript) {
+//      <div class="p3sdk-interactive-transcript" file_id="78983" project_id="10013">
+			var $theTranscriptWrapper = $j(document.createElement('div'));
+			var transcriptClasses = "p3sdk-interactive-transcript " + transcriptAlignment;
+			$theTranscriptWrapper.attr('class', transcriptClasses);
+			if(transcriptAlignment == 'bottom') {
+				$theTranscriptWrapper.attr('style', "width: "+ width + "px");
+			} else {
+				$theTranscriptWrapper.attr('style', "width: "+ transcriptWidth + "px");
+			}
+			$theTranscriptWrapper.attr('project_id', projectId);
+			$theTranscriptWrapper.attr('file_id', fileId);
+			$theTranscriptWrapper.attr('light_scroll', 'true');
+			$wrapper.append($theTranscriptWrapper);
+			
+//      <input type="text" class="p3sdk-interactive-transcript-searchbox"/>
+			var $theTranscriptSearch = $j(document.createElement('input'));
+			$theTranscriptSearch.attr('type', "text");
+			$theTranscriptSearch.attr('class', "p3sdk-interactive-transcript-searchbox");
+			$theTranscriptSearch.attr('placeholder', "Search Transcript");
+			$theTranscriptWrapper.append($theTranscriptSearch);
+						
+//      <div class="p3sdk-interactive-transcript-content"></div> 
+			var $theTranscriptContent = $j(document.createElement('div'));
+			$theTranscriptContent.attr('class', "p3sdk-interactive-transcript-content");
+			if(transcriptAlignment == 'side') {
+				$theTranscriptContent.attr('style', "float: left; width: "+(transcriptWidth-20)+"px; height: " + height + "px");
+			} else {
+				$theTranscriptContent.attr('style', "height: 150px");
+			}
+			$theTranscriptWrapper.append($theTranscriptContent);
+		}
+
+		$wrapper.lightbox_me({
+			destroyOnClose:true, 
+			closeSelector:'.jive-close',
+			onLoad:function(){ 
+				var playerInstance = setupPlayer(videoElementId, macroInstanceId, config);
+				playerInstance.on('ready', function() {
+					if(loadInteractiveTranscript) {
+						$j('#'+videoElementId).addClass(transcriptAlignment);
+						var url = "//p3.3playmedia.com/p3sdk.current.js";
+						$j.getScript( url, function() {});
+					}
+					var halfwidth = $j('.jive-modal-ciscovideomacro').outerWidth()/2;
+					$j('.jive-modal-ciscovideomacro').css('margin-left', '-'+halfwidth +'px');
+				});
+			}
+		});
+		e.preventDefault();
+	});
+};
+

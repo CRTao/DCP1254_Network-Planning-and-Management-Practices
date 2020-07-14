@@ -1,0 +1,21 @@
+//-------------------------------------
+//    Part 3 HSRP Config
+//-------------------------------------
+(default priority = 100)
+
+
+// R2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+interface gig0/1
+standby version 2
+standby 1 ip 172.16.1.126
+standby 1 priority 110
+standby 1 preempt
+
+// R3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+interface gig0/1
+standby version 2
+standby 1 ip 172.16.1.126
+standby 1 priority 90
+standby 1 preempt

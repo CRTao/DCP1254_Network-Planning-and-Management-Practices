@@ -1,0 +1,86 @@
+//-------------------------------------
+//    Part 1 Simple Config
+//-------------------------------------
+
+// R1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+hostname R1
+enable secret class
+service password-encryption
+
+line console 0
+exec-timeout 0
+password cisco
+login
+
+line vty 0 15
+password cisco
+login
+
+interface se0/0/0
+ip address 192.168.1.2 255.255.255.252
+bandwidth 64 (64K)
+no shutdown
+
+interface gig0/0
+ip address 172.16.2.254 255.255.255.0
+bandwidth 100000 (100M)
+no shutdown
+
+// R2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+hostname R2
+enable secret class
+service password-encryption
+
+line console 0
+exec-timeout 0
+password cisco
+login
+
+line vty 0 15
+password cisco
+login
+
+interface gig0/0
+ip address 172.16.2.253 255.255.255.0
+bandwidth 1000000 (1000M)
+no shutdown
+
+interface gig0/1
+ip address 172.16.1.125 255.255.255.128
+bandwidth 1000000 (1000M)
+no shutdown
+
+// R3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+hostname R3
+enable secret class
+service password-encryption
+
+line console 0
+exec-timeout 0
+password cisco
+login
+
+line vty 0 15
+password cisco
+login
+
+interface gig0/0
+ip address 172.16.2.252 255.255.255.0
+bandwidth 1000000 (1000M)
+no shutdown
+
+interface gig0/1
+ip address 172.16.1.124 255.255.255.128
+bandwidth 1000000 (1000M)
+no shutdown
+
+// PC0~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+172.16.1.1 255.255.255.128
+
+// PC1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+172.16.1.10 255.255.255.128

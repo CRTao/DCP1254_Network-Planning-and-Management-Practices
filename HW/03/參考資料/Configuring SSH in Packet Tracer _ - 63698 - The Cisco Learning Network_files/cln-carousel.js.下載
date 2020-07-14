@@ -1,0 +1,74 @@
+$j( document ).ready(function() {
+
+		//Set the autoscroll delay
+		if ($j('.cln-image-slider').attr('delay')){
+			var delay = $j('.cln-image-slider').attr('delay')*1000;
+		}else{
+			var delay = 3000
+		}
+
+		//initiate the carousel
+		$j( '.cln-image-slider:not(.three) .jcarousel' ).jcarousel( {
+				wrap:'both',
+				animation: {
+						duration: 0
+				}
+		}).jcarouselAutoscroll({
+			interval:delay,
+			target:'+=1',
+			autostart:true
+		}).on( 'jcarousel:animate', function ( event, carousel ) {
+						$j( carousel._element.context ).find( 'li' ).stop( true ).fadeTo( 0, 0 ).fadeTo( 1200, 1 );
+		});
+
+		$j( '.cln-image-slider.three .jcarousel' ).jcarousel({
+				animation: {
+						duration: 600
+				}
+		});
+
+		//Automatically stop after all the slides
+		var slides = $j( '.cln-image-slider:not(.three) .jcarousel ul li').size();
+		var stopTime = (slides + 1) * delay;
+
+		setTimeout(function() {
+			$j( '.cln-image-slider:not(.three) .jcarousel').jcarouselAutoscroll('stop');
+		}, stopTime);
+
+		//Pagination
+		$j('.jcarousel-control-prev')
+				.on('jcarouselcontrol:active', function() {
+						$j(this).removeClass('inactive');
+				})
+				.on('jcarouselcontrol:inactive', function() {
+						$j(this).addClass('inactive');
+				})
+				.jcarouselControl({
+						target: '-=1'
+				});
+
+		$j('.jcarousel-control-next')
+				.on('jcarouselcontrol:active', function() {
+						$j(this).removeClass('inactive');
+				})
+				.on('jcarouselcontrol:inactive', function() {
+						$j(this).addClass('inactive');
+				})
+				.jcarouselControl({
+						target: '+=1'
+				});
+
+		$j('.jcarousel-pagination')
+				.on('jcarouselpagination:active', 'li', function() {
+						$j(this).addClass('active');
+				})
+				.on('jcarouselpagination:inactive', 'li', function() {
+						$j(this).removeClass('active');
+				})
+				.jcarouselPagination({
+						'perPage': 1,
+						'item': function(page, carouselItems) {
+								return '<li class="' + (page == 1 ? "active" : "") + '"><a href="#' + page + '"></a></li>';
+						}
+				});
+});

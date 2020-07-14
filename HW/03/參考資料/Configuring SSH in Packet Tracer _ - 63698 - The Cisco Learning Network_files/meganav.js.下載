@@ -1,0 +1,199 @@
+$j(document).ready(function () {
+
+	//Activate or deactivate the meganav. Using hover intent so incidental mouseOver doesn't expand
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+		$j("#meganav > li").click(function(){
+
+			tab = $j(this);
+			if (tab.hasClass('active')){
+				//CISCOI-73 CLN Store link on android/IOS issue
+				link = tab.children('a.navLink').attr('href'); 
+				if(tab.hasClass("solo")) {
+					window.open(link, '_blank');
+				} else {
+					window.location.href = link;
+				}
+			}else{
+				initiateClick(tab);
+			}
+			return false;
+		});
+	}else{
+		$j('#meganav > li:not(.solo)').hoverIntent(initiateHover, $j.noop);
+	}
+
+
+
+	//Clear nav when mouseout or click off
+	$j(document).click(function(){
+		collapseNav();
+	});
+	$j(".header-lower").mouseleave(function(){
+		collapseNav();
+	});
+	$j('#meganav > li.solo').mouseover(function(){
+		collapseNav();
+		$j(this).addClass('active');
+	});
+	$j("#meganav, #meganav-expand").click(function(e){
+	  e.stopPropagation();
+	});
+
+	//Set cookie for default tab
+	$j('#meganav-expand ul.certification a').click(function(){
+		activeTab = $j('ul.certification > li.active > span').html();
+		setCookie("defaultTab", activeTab, 60);
+	});
+
+	//Active states
+	$j('#meganav li').not(':first-child').each(function(){
+		var parentPlace = $j(this).children('a').attr('href');
+	    if(window.location.pathname.indexOf(parentPlace) > -1) {
+	      // The "Community" tab URL is actually under the "Learning Center" hierarchy,
+				// so we need an exception so that both "Community" and "Learning Center" are not
+				// highlighted at the same time.
+				if(window.location.pathname.indexOf("/learning_center/featured-groups") > -1){
+					//"Community" tab is active.
+					$j('#meganav li:nth-child(3)').addClass('parent');
+				}else if($j('#place-label').attr('isHome') == 'true'){
+					//Communties with the extended property "home.community = true" will highlight the "home" tab
+					//regardless of the URL
+					$j('#meganav li:first-child').addClass('parent');
+				}
+				else{
+					//Match the URL to assign active tab.
+					$j(this).addClass('parent');
+				}
+	    };
+	});
+	if($j('#place-label').attr('isHome') == 'true'){
+		//Communties with the extended property "home.community = true" will highlight the "home" tab
+		$j('#meganav li:first-child').addClass('parent');
+	}else{
+		if(window.location.href.indexOf("/welcome") > -1){
+			$j('#meganav li:first-child').addClass('parent');
+		}else if(window.location.href.indexOf("/groups/cc") > -1){
+			//The "community" tab points to these groups
+			$j('#meganav li:nth-child(3)').addClass('parent');
+		}else if(window.location.href.indexOf("/community/connections") > -1){
+			//The "Learning Center" tab features spaces in the "connections" community
+			$j('#meganav li:nth-child(4)').addClass('parent');
+		}
+	};
+
+	//Add "wide" class for large 2nd level menus that don't have children
+	$j('#meganav-expand > ul > li > div > ul').each(function(){
+		if (($j(this).children("li").length > 10) && (!$j(this).children("li").children("div").length > 0)){
+			$j(this).addClass("wide");
+		}
+	});
+});
+
+//meganav initiate from a hover
+function initiateHover(){
+	$j('.js-pop').remove();
+	tab = $j(this);
+	$j('#meganav-expand li').removeClass('active');
+	$j('#meganav-expand div').hide();
+	section = tab.index();
+
+	//Set default tab from cookie
+	defaultTabName = getCookie('defaultTab');
+
+	//active state in the header
+	$j('#meganav li').removeClass('active');
+	tab.addClass('active');
+
+	//expand the nav
+	expandNav(section, defaultTabName);
+}
+
+//meganav initiate from a click, mobile only for the most part, clone of the function above
+function initiateClick(){
+	$j('#meganav-expand li').removeClass('active');
+	$j('#meganav-expand div').hide();
+	section = tab.index();
+
+	//Set default tab from cookie
+	defaultTabName = getCookie('defaultTab');
+
+	//active state in the header
+	$j('#meganav li').removeClass('active');
+	tab.addClass('active');
+
+	//expand the nav
+	expandNav(section, defaultTabName);
+}
+function lightbox(){
+	height = $j(document).height()-117;
+	$j('body').append('<div class="meganav-overlay"></div>')
+	$j('.meganav-overlay').css("height", height);
+}
+
+function collapseNav(){
+	$j('#meganav-expand').hide();
+	$j('#meganav-expand div').hide();
+	$j('#meganav li').removeClass('active');
+	$j('#meganav-expand').removeClass('active');
+	$j('#meganav-expand li').removeClass('active');
+	$j('.meganav-overlay').remove();
+}
+
+function expandNav() {
+	//slide and show light box if meganav is not already expanded
+	if (!$j('#meganav-expand').hasClass('active')){
+		lightbox()
+		$j('#meganav-expand').slideDown();
+		$j('#meganav-expand').addClass('active');
+	}
+	//The nav that we want
+	activeNav = $j('#meganav-expand > ul').eq(section)
+
+	//hide all navs then show the one we want
+	$j('#meganav-expand > ul').hide();
+	$j(activeNav).show();
+
+	//for a certifications nav, reveal last lower level automatically from cookie
+	defaultTab = $j('#meganav-expand ul.certification > li > span:contains(' + defaultTabName+ ')').parent('li');
+	$j(defaultTab).addClass('active');
+	$j(defaultTab).find('>div').show();
+
+	//reveal first lower level by default
+	if ( (!$j(activeNav).hasClass('certification')) && ($j(activeNav).find('> li >a').length) ){
+		$j(activeNav).children('li:nth-child(2)').addClass('active');
+		$j(activeNav).find('.active >div').show();
+	}else{
+		$j(activeNav).children('li:first-child').addClass('active');
+		$j(activeNav).find('.active >div').show();
+	}
+
+	//for a tabbed navigation nav, reveal lower levels on click
+	$j('#meganav-expand ul li span').click(function(e){
+		navItem=$j(this).parent('li');
+		$j(navItem).siblings('li').removeClass('active');
+		$j(navItem).siblings('li').children('div').hide();
+		$j(navItem).find('>div').show();
+		$j(navItem).addClass('active');
+		e.stopPropagation();
+	});
+
+}
+
+//set cookie function
+function setCookie(cname, value, days){
+	var d = new Date();
+	d.setTime(d.getTime() + (days*24*60*60*1000));
+    var expires = "expires=" + d.toGMTString();
+	document.cookie = cname +'='+ value+'; '+expires;
+}
+//retrieve cookie
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) != -1) return c.substring(name.length,c.length);
+    }
+    return "";
+}
